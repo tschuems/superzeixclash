@@ -18,6 +18,7 @@ export default class extends Phaser.State {
 
     // load all characters
     this.game.load.spritesheet('dude', 'assets/characters/dude.png', 32, 48)
+    this.game.load.spritesheet('marcel', 'assets/characters/marcel.png', 450, 700)
   }
 
   create () {
@@ -36,7 +37,7 @@ export default class extends Phaser.State {
     var ground = this.platforms.create(0, this.game.world.height - 64, 'ground')
 
     //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
-    ground.scale.setTo(2, 2)
+    ground.scale.setTo(4, 2)
 
     //  This stops it from falling away when you jump on it
     ground.body.immovable = true
@@ -46,7 +47,7 @@ export default class extends Phaser.State {
       game: this.game,
       x: 0,
       y: 0,
-      character: 'dude',
+      character: 'marcel',
       controls: {
         jump: this.game.input.keyboard.addKey(Phaser.KeyCode.W),
         left: this.game.input.keyboard.addKey(Phaser.KeyCode.A),
@@ -60,7 +61,7 @@ export default class extends Phaser.State {
       game: this.game,
       x: this.world.width - 32,
       y: 0,
-      character: 'dude',
+      character: 'marcel',
       controls: {
         jump: this.game.input.keyboard.addKey(Phaser.KeyCode.UP),
         left: this.game.input.keyboard.addKey(Phaser.KeyCode.LEFT),
@@ -91,12 +92,19 @@ export default class extends Phaser.State {
       bullet.kill()
       bullet2.kill()
     })
+
+    if (!this.player.alive || !this.player2.alive) {
+      this.endGame()
+    }
   }
 
   collisionHandler (player, bullet) {
     // display lives
     bullet.destroy()
     player.health = player.health - config.player.damage
+
+    player.hit()
+
     if (player.health <= 0) {
       player.kill()
       // player.destroy()
@@ -106,12 +114,13 @@ export default class extends Phaser.State {
     this.stateText = 'GAME OVER \n Click to restart'
   }
 
-  /* restart () {
-    this.player.revive()
-    this.player2.revive()
+  endGame () {
+    this.game.paused = true
+    this.game.add.text(this.game.world.centerX - 150, this.game.world.centerY - 100, 'game over', { font: '60px Raleway' })
 
-    this.stateText.visible = false
-  } */
+    this.rePlay = this.game.add.sprite(this.game.world.centerX - 150, this.game.world.centerY + 100, 'rePlay')
+    this.rePlay.anchor.setTo(0.5, 0.5)
+  }
 
   render () {
     // if (__DEV__) {
