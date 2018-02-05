@@ -46,7 +46,9 @@ export default class extends Phaser.State {
     ground.body.immovable = true
 
     // general sounds
-    var bulletCollission = this.game.add.audio('bulletCollission')
+    this.sounds = {
+      bulletCollission: this.game.add.audio('bulletCollission')
+    }
 
     // player Sounds sounds
     var ah = this.game.add.audio('ah')
@@ -104,6 +106,7 @@ export default class extends Phaser.State {
     this.game.physics.arcade.overlap(this.player, this.player2.weapon.bullets, this.collisionHandler)
 
     this.game.physics.arcade.overlap(this.player.weapon.bullets, this.player2.weapon.bullets, (bullet, bullet2) => {
+      this.sounds.bulletCollission.play()
       bullet.kill()
       bullet2.kill()
     })
