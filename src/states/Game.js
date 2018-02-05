@@ -18,6 +18,10 @@ export default class extends Phaser.State {
 
     // load all characters
     this.game.load.spritesheet('dude', 'assets/characters/dude.png', 32, 48)
+
+    // sounds
+    this.game.load.audio('ah', 'assets/sounds/ah.mp3')
+    this.game.load.audio('bulletCollission', 'assets/sounds/bulletCollission.mp3')
   }
 
   create () {
@@ -41,6 +45,12 @@ export default class extends Phaser.State {
     //  This stops it from falling away when you jump on it
     ground.body.immovable = true
 
+    // general sounds
+    var bulletCollission = this.game.add.audio('bulletCollission')
+
+    // player Sounds sounds
+    var ah = this.game.add.audio('ah')
+
     // The player and its settings
     this.player = new Player({
       game: this.game,
@@ -53,6 +63,9 @@ export default class extends Phaser.State {
         right: this.game.input.keyboard.addKey(Phaser.KeyCode.D),
         crouch: this.game.input.keyboard.addKey(Phaser.KeyCode.S),
         fire: this.game.input.keyboard.addKey(Phaser.KeyCode.SHIFT)
+      },
+      sounds: {
+        hit: ah
       }
     })
 
@@ -67,6 +80,9 @@ export default class extends Phaser.State {
         right: this.game.input.keyboard.addKey(Phaser.KeyCode.RIGHT),
         crouch: this.game.input.keyboard.addKey(Phaser.KeyCode.DOWN),
         fire: this.game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
+      },
+      sounds: {
+        hit: ah
       }
     })
 
@@ -92,6 +108,7 @@ export default class extends Phaser.State {
     // display lives
     bullet.destroy()
     player.health = player.health - config.player.damage
+    player.sounds.hit.play()
     if (player.health <= 0) {
       player.kill()
       // player.destroy()

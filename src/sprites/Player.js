@@ -9,7 +9,7 @@ import config from '../config'
  * @extends {Phaser.Sprite}
  */
 export default class extends Phaser.Sprite {
-  constructor ({ game, x, y, character, controls }) {
+  constructor ({ game, x, y, character, controls, sounds }) {
     super(game, x, y, character)
 
     this.game = game
@@ -17,7 +17,9 @@ export default class extends Phaser.Sprite {
     this.character = character
     this.controls = controls
 
-    this.create()
+    this.sounds = sounds
+
+    this.create(sounds)
     this.createHUD(x)
   }
 
