@@ -1,6 +1,7 @@
 /* globals __DEV__ */
 import Phaser from 'phaser'
 // import Mushroom from '../sprites/Mushroom'
+const DMG = 1
 
 export default class extends Phaser.State {
   init () {
@@ -12,8 +13,16 @@ export default class extends Phaser.State {
       fireRate: 200,
       nextFire: 0,
       playerHeight: 48,
-      playerHealth: 100,
-      playerDemage: 100
+      playerHealth: 3
+    }
+
+    this.display = {
+      player: {
+        text: ''
+      },
+      player2: {
+        text: ''
+      }
     }
 
     this.keys = {
@@ -26,6 +35,7 @@ export default class extends Phaser.State {
 
     this.game.load.image('ground', 'assets/platform.png')
     this.game.load.image('star', 'assets/star.png')
+    this.game.load.image('heart', 'assets/star.png')
 
     // load all characters
     this.game.load.spritesheet('dude', 'assets/characters/dude.png', 32, 48)
@@ -53,11 +63,11 @@ export default class extends Phaser.State {
     ground.body.immovable = true
 
     //  Now let's create two ledges
-    var ledge = this.platforms.create(400, 400, 'ground')
-    ledge.body.immovable = true
+    // var ledge = this.platforms.create(400, 400, 'ground')
+    // ledge.body.immovable = true
 
-    ledge = this.platforms.create(-150, 250, 'ground')
-    ledge.body.immovable = true
+    // ledge = this.platforms.create(-150, 250, 'ground')
+    // ledge.body.immovable = true
 
     // The player and its settings
     this.player = this.game.add.sprite(32, this.game.world.height - 150, 'dude')
@@ -72,7 +82,7 @@ export default class extends Phaser.State {
     this.player.body.gravity.y = 1000
     this.player.body.collideWorldBounds = true
     this.player.height = this.clashOptions.playerHeight
-    this.player.demage = this.clashOptions.playerDemage
+    this.player.damage = DMG
     this.player.health = this.clashOptions.playerHealth
 
 
@@ -81,7 +91,7 @@ export default class extends Phaser.State {
     this.player2.body.gravity.y = 1000
     this.player2.body.collideWorldBounds = true
     this.player2.height = this.clashOptions.playerHeight
-    this.player2.demage = this.clashOptions.playerDemage
+    this.player2.damage = DMG
     this.player2.health = this.clashOptions.playerHealth
 
     //  Our two animations, walking left and right.
@@ -98,8 +108,9 @@ export default class extends Phaser.State {
     this.weapon.trackSprite(this.player, 0, this.clashOptions.playerHeight / 2, false)
 
     //  The score
-    this.scoreText = this.game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' })
-
+    this.player2.display = this.game.add.text(16, 16, 'Player 2', { fontSize: '32px', fill: '#000' })
+    this.display.player2.text = this.game.add.text(16, 56, 'lives:' + this.player2.health + '/' + this.clashOptions.playerHealth, { fontSize: '16px', fill: '#000' })
+    
     //  Our controls.
     this.cursors = this.game.input.keyboard.createCursorKeys()
   }
@@ -110,6 +121,7 @@ export default class extends Phaser.State {
     this.game.physics.arcade.collide(this.player2, this.platforms)
     this.game.physics.arcade.collide(this.stars, this.platforms)
 
+    this.display.player2.text.text = 'lives:' + this.player2.health + '/' + this.clashOptions.playerHealth
     //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
     this.game.physics.arcade.overlap(this.player, this.stars, this.collectStar, null, this)
 
@@ -147,11 +159,30 @@ export default class extends Phaser.State {
       this.player.body.velocity.y = -350
     }
 
+    //  Run collision
+    this.game.physics.arcade.overlap(this.player2, this.weapon.bullets, this.collisionHandler)
+
     if (this.keys.space.isDown) {
-      console.log(this.weapon.fireAngle)
-      console.log(this.player2.health)
+      // console.log(this.weapon.fireAngle)
+      // console.log(this.player2.health)
+      console.log('alive :' + this.player2.alive)
       this.weapon.fire()
     }
+  }
+
+  collisionHandler (player, bullet) {
+
+    // display lives
+
+    bullet.destroy()
+    player.health = player.health - DMG
+    if (player.health <= 0) {
+      player.kill()
+      player.destroy()
+    }
+    console.log('player health: ' + player.health + ' player isAlive: ' + player.alive)
+
+    this.stateText = 'GAME OVER \n Click to restart'
   }
 
   fire () {
@@ -166,9 +197,16 @@ export default class extends Phaser.State {
     }
   }
 
+  /* restart () {
+    this.player.revive()
+    this.player2.revive()
+
+    this.stateText.visible = false
+  } */
+
   render () {
     // if (__DEV__) {
-    //   this.game.debug.spriteInfo(this.mushroom, 32, 32)
+    //   this.game.debug.spriteInfo(this.player, 32, 32)
     // }
   }
 }
