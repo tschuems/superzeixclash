@@ -19,9 +19,13 @@ export default class extends Phaser.State {
     // load all characters
     this.game.load.spritesheet('dude', 'assets/characters/dude.png', 32, 48)
 
-    // sounds
+    // sounds general
     this.game.load.audio('ah', 'assets/sounds/ah.mp3')
     this.game.load.audio('bulletCollission', 'assets/sounds/bulletCollission.mp3')
+
+    // sounds marcel
+    this.game.load.audio('marcelHit', 'assets/sounds/marcel/hit.wav')
+    this.game.load.audio('marcelDeath', 'assets/sounds/marcel/death.wav')
   }
 
   create () {
@@ -53,6 +57,10 @@ export default class extends Phaser.State {
     // player Sounds sounds
     var ah = this.game.add.audio('ah')
 
+    // marcel sounds
+    var marcelHit = this.game.add.audio('marcelHit')
+    var marcelDeath = this.game.add.audio('marcelDeath')
+
     // The player and its settings
     this.player = new Player({
       game: this.game,
@@ -67,7 +75,8 @@ export default class extends Phaser.State {
         fire: this.game.input.keyboard.addKey(Phaser.KeyCode.SHIFT)
       },
       sounds: {
-        hit: ah
+        hit: marcelHit,
+        death: marcelDeath
       }
     })
 
@@ -84,7 +93,8 @@ export default class extends Phaser.State {
         fire: this.game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
       },
       sounds: {
-        hit: ah
+        hit: marcelHit,
+        death: marcelDeath
       }
     })
 
@@ -116,11 +126,15 @@ export default class extends Phaser.State {
     // display lives
     bullet.destroy()
     player.health = player.health - config.player.damage
-    player.sounds.hit.play()
+
     if (player.health <= 0) {
+      player.sounds.death.play()
       player.kill()
       // player.destroy()
+    } else {
+      player.sounds.hit.play()
     }
+
     console.log('player health: ' + player.health + ' player isAlive: ' + player.alive)
 
     this.stateText = 'GAME OVER \n Click to restart'
