@@ -102,6 +102,11 @@ export default class extends Phaser.State {
     // //  Run collision
     this.game.physics.arcade.overlap(this.player2, this.player.weapon.bullets, this.collisionHandler)
     this.game.physics.arcade.overlap(this.player, this.player2.weapon.bullets, this.collisionHandler)
+
+    this.game.physics.arcade.overlap(this.player.weapon.bullets, this.player2.weapon.bullets, (bullet, bullet2) => {
+      bullet.kill()
+      bullet2.kill()
+    })
   }
 
   collisionHandler (player, bullet) {
