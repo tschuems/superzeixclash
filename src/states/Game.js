@@ -10,22 +10,29 @@ export default class extends Phaser.State {
   }
   preload () {
     // load level
-    this.game.load.image('sky', 'assets/levels/sky.png')
+    this.game.load.image('background', 'assets/levels/background.png')
 
     this.game.load.image('ground', 'assets/platform.png')
-    this.game.load.image('star', 'assets/star.png')
-    this.game.load.image('heart', 'assets/star.png')
+    this.game.load.image('trumpet', 'assets/characters/marcel/weapon.png')
 
     // load all characters
     this.game.load.spritesheet('dude', 'assets/characters/dude.png', 32, 48)
-    this.game.load.spritesheet('marcel', 'assets/characters/marcel.png', 450, 700)
+    this.game.load.spritesheet('marcel', 'assets/characters/marcel/character.png', 100, 150)
+
+    // sounds general
+    this.game.load.audio('ah', 'assets/sounds/ah.mp3')
+    this.game.load.audio('bulletCollission', 'assets/sounds/bulletCollission.mp3')
+
+    // sounds marcel
+    this.game.load.audio('marcelHit', 'assets/sounds/marcel/hit.wav')
+    this.game.load.audio('marcelDeath', 'assets/sounds/marcel/death.wav')
   }
 
   create () {
     this.game.physics.startSystem(Phaser.Physics.ARCADE)
 
     //  A simple background for our game
-    this.game.add.sprite(0, 0, 'sky')
+    this.game.add.sprite(0, 0, 'background')
 
     //  The platforms group contains the ground and the 2 ledges we can jump on
     this.platforms = this.game.add.group()
@@ -42,6 +49,18 @@ export default class extends Phaser.State {
     //  This stops it from falling away when you jump on it
     ground.body.immovable = true
 
+    // general sounds
+    this.sounds = {
+      bulletCollission: this.game.add.audio('bulletCollission')
+    }
+
+    // player Sounds sounds
+    var ah = this.game.add.audio('ah')
+
+    // marcel sounds
+    var marcelHit = this.game.add.audio('marcelHit')
+    var marcelDeath = this.game.add.audio('marcelDeath')
+
     // The player and its settings
     this.player = new Player({
       game: this.game,
@@ -54,6 +73,10 @@ export default class extends Phaser.State {
         right: this.game.input.keyboard.addKey(Phaser.KeyCode.D),
         crouch: this.game.input.keyboard.addKey(Phaser.KeyCode.S),
         fire: this.game.input.keyboard.addKey(Phaser.KeyCode.SHIFT)
+      },
+      sounds: {
+        hit: marcelHit,
+        death: marcelDeath
       }
     })
 
@@ -68,6 +91,10 @@ export default class extends Phaser.State {
         right: this.game.input.keyboard.addKey(Phaser.KeyCode.RIGHT),
         crouch: this.game.input.keyboard.addKey(Phaser.KeyCode.DOWN),
         fire: this.game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
+      },
+      sounds: {
+        hit: marcelHit,
+        death: marcelDeath
       }
     })
 
@@ -89,12 +116,13 @@ export default class extends Phaser.State {
     this.game.physics.arcade.overlap(this.player, this.player2.weapon.bullets, this.collisionHandler)
 
     this.game.physics.arcade.overlap(this.player.weapon.bullets, this.player2.weapon.bullets, (bullet, bullet2) => {
+      this.sounds.bulletCollission.play()
       bullet.kill()
       bullet2.kill()
     })
 
     if (!this.player.alive || !this.player2.alive) {
-      this.endGame()
+      // this.endGame()
     }
   }
 
@@ -103,12 +131,15 @@ export default class extends Phaser.State {
     bullet.destroy()
     player.health = player.health - config.player.damage
 
-    player.hit()
-
     if (player.health <= 0) {
+      player.sounds.death.play()
       player.kill()
       // player.destroy()
+    } else {
+      player.hit()
+      player.animations.play('hit')
     }
+
     console.log('player health: ' + player.health + ' player isAlive: ' + player.alive)
 
     this.stateText = 'GAME OVER \n Click to restart'

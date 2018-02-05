@@ -9,7 +9,7 @@ import config from '../config'
  * @extends {Phaser.Sprite}
  */
 export default class extends Phaser.Sprite {
-  constructor ({ game, x, y, character, controls }) {
+  constructor ({ game, x, y, character, controls, sounds }) {
     super(game, x, y, character)
 
     this.game = game
@@ -17,7 +17,9 @@ export default class extends Phaser.Sprite {
     this.character = character
     this.controls = controls
 
-    this.create()
+    this.sounds = sounds
+
+    this.create(sounds)
     this.createHUD(x)
   }
 
@@ -87,13 +89,15 @@ export default class extends Phaser.Sprite {
   }
 
   hit () {
-    console.log('hit')
+    this.sounds.hit.play()
     this.animations.stop()
     this.body.velocity.x = 0
 
     if (this.weapon.fireAngle === 0) {
+      console.log('hit right')
       this.animations.play('hit_right')
     } else {
+      console.log('hit left')
       this.animations.play('hit_left')
     }
   }
@@ -106,7 +110,7 @@ export default class extends Phaser.Sprite {
   }
 
   createWeapon () {
-    this.weapon = this.game.add.weapon(20, 'star')
+    this.weapon = this.game.add.weapon(20, 'trumpet')
     this.weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS
 
     this.weapon.fireAngle = 0
