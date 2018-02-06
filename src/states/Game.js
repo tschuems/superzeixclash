@@ -16,16 +16,17 @@ export default class extends Phaser.State {
     this.game.load.image('trumpet', 'assets/characters/marcel/weapon.png')
 
     // load all characters
-    this.game.load.spritesheet('dude', 'assets/characters/dude.png', 32, 48)
     this.game.load.spritesheet('marcel', 'assets/characters/marcel/character.png', 100, 150)
 
     // sounds general
     this.game.load.audio('ah', 'assets/sounds/ah.mp3')
+    this.game.load.audio('background', 'assets/sounds/game_music.mp3')
     this.game.load.audio('bulletCollission', 'assets/sounds/bulletCollission.mp3')
 
     // sounds marcel
-    this.game.load.audio('marcelHit', 'assets/sounds/marcel/hit.wav')
-    this.game.load.audio('marcelDeath', 'assets/sounds/marcel/death.wav')
+    this.game.load.audio('marcel_hit', 'assets/characters/marcel/hit.wav')
+    this.game.load.audio('marcel_death', 'assets/characters/marcel/death.wav')
+    this.game.load.audio('marcel_shoot', 'assets/characters/marcel/shoot.wav')
   }
 
   create () {
@@ -57,9 +58,13 @@ export default class extends Phaser.State {
     // player Sounds sounds
     var ah = this.game.add.audio('ah')
 
+    // play game sound
+    this.game.add.audio('background').play()
+
     // marcel sounds
-    var marcelHit = this.game.add.audio('marcelHit')
-    var marcelDeath = this.game.add.audio('marcelDeath')
+    var marcelHit = this.game.add.audio('marcel_hit')
+    var marcelDeath = this.game.add.audio('marcel_death')
+    var shoot = this.game.add.audio('marcel_shoot')
 
     // The player and its settings
     this.player = new Player({
@@ -76,7 +81,8 @@ export default class extends Phaser.State {
       },
       sounds: {
         hit: marcelHit,
-        death: marcelDeath
+        death: marcelDeath,
+        shoot: shoot
       }
     })
 
@@ -94,7 +100,8 @@ export default class extends Phaser.State {
       },
       sounds: {
         hit: marcelHit,
-        death: marcelDeath
+        death: marcelDeath,
+        shoot: shoot
       }
     })
 
@@ -137,7 +144,6 @@ export default class extends Phaser.State {
       // player.destroy()
     } else {
       player.hit()
-      player.animations.play('hit')
     }
 
     console.log('player health: ' + player.health + ' player isAlive: ' + player.alive)
